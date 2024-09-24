@@ -4,6 +4,7 @@ CREATE TABLE order_details (
     product_id UUID NOT NULL,
     ordered_quantity INTEGER,
     unit_price NUMERIC(10,2),
+    unit VARCHAR,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );

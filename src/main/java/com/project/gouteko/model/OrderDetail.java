@@ -28,7 +28,8 @@ public class OrderDetail {
     private Product product;
 
     @Column(nullable = false)
-    private Integer orderedQuantity;
+        private Integer orderedQuantity;
+    private String unit;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
