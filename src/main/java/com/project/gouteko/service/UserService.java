@@ -38,4 +38,13 @@ public class UserService {
         }
         else throw new RuntimeException("User id not found" + id);
     }
+
+    public void deleteUser(UUID id) {
+        Optional<User> user1 = userRepository.findById(id);
+        if (user1.isPresent()) {
+            userRepository.deleteById(id);
+        }
+        else throw new RuntimeException("User not found with ID: ");
+    }
+
 }

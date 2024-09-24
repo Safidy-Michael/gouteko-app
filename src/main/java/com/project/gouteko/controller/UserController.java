@@ -38,5 +38,15 @@ public class UserController {
         }
 
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void>  deleteUser(@PathVariable UUID id){
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 }
