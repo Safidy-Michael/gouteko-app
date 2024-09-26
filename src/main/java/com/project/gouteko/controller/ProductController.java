@@ -21,7 +21,7 @@ public class ProductController {
         return productService.getProductByName(productName);
     }
 
-    @PutMapping("/crupdate/{idProduct}")
+    @PutMapping("/crupdate/{id}")
     public ResponseEntity<Product> crupdateProduct(@PathVariable UUID id, @RequestBody Product product){
         try {
             productService.createOrUpdateProduct(id,product);
