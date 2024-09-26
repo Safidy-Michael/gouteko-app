@@ -13,8 +13,13 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public Optional<Product> getProductByName(String name){
-        return productRepository.findByName(name);
+    public Product getProductByName(String productName){
+        Optional<Product> productN =  productRepository.findByName(productName);
+        if(productN.isPresent()){
+            Product product =  productN.get();
+            return  product;
+        }
+        else throw new RuntimeException("Product not found with id: \" "+ productName );
     }
     public Product createOrUpdateProduct(UUID id,Product crupdateProduct){
         Optional<Product> existingProduct = productRepository.findById(id);
