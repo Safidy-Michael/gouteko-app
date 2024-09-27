@@ -22,6 +22,18 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<User> findUserById(@PathVariable UUID id) {
+        try {
+            User user = userService.getUserById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
     @PostMapping("/create")
     public ResponseEntity<User> newUser(@RequestBody User user){
         User newUser = userService.create(user);

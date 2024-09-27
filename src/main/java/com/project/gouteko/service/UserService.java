@@ -47,4 +47,8 @@ public class UserService {
         else throw new RuntimeException("User not found with ID: ");
     }
 
+    public User getUserById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
+
 }
