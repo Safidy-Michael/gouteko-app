@@ -1,8 +1,11 @@
 package com.project.gouteko.controller;
 
+import com.project.gouteko.DTO.UserDTO;
+import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
 import com.project.gouteko.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -17,16 +21,20 @@ import java.util.UUID;
 public class UserController {
     @Autowired
     private final UserService userService;
-    @GetMapping("/")
-    public List<User> findAll(){
-        return userService.getAll();
-    }
+    private final UserMapper userMapper;
 
+    @GetMapping("/")
+    public List<UserDTO> findAll() {
+        List<User> users = userService.getAll();
+        return users.stream()
+                .map(userMapper::toView)
+                .toList();
+    }
     @GetMapping("/{id}")
-    public ResponseEntity<User> findUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserDTO> findUserById(@PathVariable UUID id) {
         try {
             User user = userService.getUserById(id);
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return new ResponseEntity<>(userMapper.toView(user), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -35,20 +43,21 @@ public class UserController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<User> newUser(@RequestBody User user){
-        User newUser = userService.create(user);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    public ResponseEntity<UserDTO> newUser(@RequestParam("user") UserDTO userDTO) throws Exception {
+        User newUser = UserMapper.toDomain(userDTO);
+        User createdUser = userService.create(newUser);
+        return new ResponseEntity<>(userMapper.toView(createdUser), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user){
+    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestParam("user") UserDTO userDTO) {
         try {
-            userService.updateUser(id, user);
-            return new ResponseEntity<>(user , HttpStatus.OK);
-        }
-        catch (RuntimeException e){
+            User updatedUser = UserMapper.toDomain(userDTO);
+            userService.updateUser(id, updatedUser);
+            return new ResponseEntity<>(userMapper.toView(updatedUser), HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>  deleteUser(@PathVariable UUID id){
