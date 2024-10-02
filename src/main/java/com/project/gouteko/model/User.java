@@ -35,4 +35,7 @@ public class User {
 
     @Column(length = 15)
     private String phoneNumber;
+
+    @Column(columnDefinition = "TEXT")
+    private String image;
 }
