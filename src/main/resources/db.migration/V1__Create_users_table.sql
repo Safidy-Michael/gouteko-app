@@ -7,3 +7,6 @@ CREATE TABLE users (
     address TEXT,
     phone_number VARCHAR(15)
 );
+
+ALTER TABLE users
+ADD COLUMN image TEXT;
