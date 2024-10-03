@@ -1,19 +1,20 @@
 package com.project.gouteko.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
 import com.project.gouteko.service.UserService;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -30,35 +31,44 @@ public class UserController {
                 .map(userMapper::toView)
                 .toList();
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> findUserById(@PathVariable UUID id) {
-        try {
-            User user = userService.getUserById(id);
-            return new ResponseEntity<>(userMapper.toView(user), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        @GetMapping("/{id}")
+        public ResponseEntity<UserDTO> findUserById(@PathVariable UUID id) {
+            try {
+                User user = userService.getUserById(id);
+                return new ResponseEntity<>(userMapper.toView(user), HttpStatus.OK);
+            } catch (RuntimeException e) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
         }
-    }
+
 
 
 
     @PostMapping("/create")
-    public ResponseEntity<UserDTO> newUser(@RequestParam("user") UserDTO userDTO) throws Exception {
-        User newUser = UserMapper.toDomain(userDTO);
-        User createdUser = userService.create(newUser);
-        return new ResponseEntity<>(userMapper.toView(createdUser), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestParam("user") UserDTO userDTO) {
+    public ResponseEntity<User> createUser(@ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
         try {
-            User updatedUser = UserMapper.toDomain(userDTO);
-            userService.updateUser(id, updatedUser);
-            return new ResponseEntity<>(userMapper.toView(updatedUser), HttpStatus.OK);
+            User createdUser = userService.createUser(userDTO, imageFile);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
+        try {
+            User updatedUser = userService.updateUser(id, userDTO, imageFile);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>  deleteUser(@PathVariable UUID id){
         try {
