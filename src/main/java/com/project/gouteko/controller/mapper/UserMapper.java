@@ -19,7 +19,7 @@ public class UserMapper {
         domainUser.setLastName(userDTO.getLastName());
         domainUser.setEmail(userDTO.getEmail());
         domainUser.setPassword(userDTO.getPassword());
-        domainUser.setPhoneNumber(userDTO.getPhone());
+        domainUser.setPhoneNumber(userDTO.getPhoneNumber());
         domainUser.setAddress(userDTO.getAddress());
 
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -27,8 +27,7 @@ public class UserMapper {
             String base64Image = Base64.getEncoder().encodeToString(imageBytes);
             domainUser.setImage("data:image/jpeg;base64," + base64Image);
         } else {
-            // Gérez le cas où l'image n'est pas fournie
-            domainUser.setImage(userDTO.getImageBase64()); // Si vous avez un champ pour l'image dans UserDTO
+            domainUser.setImage(userDTO.getImageBase64());
         }
 
         return domainUser;
@@ -42,7 +41,7 @@ public class UserMapper {
             userDTO.setFirstName(user.getFirstName());
             userDTO.setLastName(user.getLastName());
             userDTO.setEmail(user.getEmail());
-            userDTO.setPhone(user.getPhoneNumber());
+            userDTO.setPhoneNumber(user.getPhoneNumber());
             userDTO.setAddress(user.getAddress());
             userDTO.setPassword(user.getPassword());
             String base64Image = user.getImage();
