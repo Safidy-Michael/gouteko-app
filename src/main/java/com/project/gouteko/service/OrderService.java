@@ -19,6 +19,8 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,19 +33,16 @@ public class OrderService {
     private final OrderDetailRepository orderDetailRepository;
 
     public OrderResponseDTO placeOrder(OrderRequestDTO orderRequest) {
-        // Vérifier si l'utilisateur existe en fonction de son prénom
         User user = userRepository.findByFirstName(orderRequest.getFirstName())
                 .orElseThrow(() -> new RuntimeException("User not found with first name: " + orderRequest.getFirstName()));
 
-        // Créer une nouvelle commande pour l'utilisateur
         Order order = new Order();
         order.setUser(user);
-        order.setOrderDate(LocalDateTime.now()); // Définir la date de la commande
+        order.setOrderDate(LocalDateTime.now());
 
         List<OrderDetail> orderDetails = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO; // Initialiser le montant total
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
-        // Parcourir les produits commandés et créer les détails de commande
         for (OrderRequestDTO.ProductOrderDTO productOrder : orderRequest.getProductOrders()) {
             Product product = productRepository.findByName(productOrder.getProductName())
                     .orElseThrow(() -> new RuntimeException("Product not found with name: " + productOrder.getProductName()));
@@ -53,29 +52,25 @@ public class OrderService {
             orderDetail.setOrderedQuantity(productOrder.getQuantity());
             orderDetail.setUnit(productOrder.getUnit());
 
-            // Calculer le prix unitaire et le montant total pour ce produit
             BigDecimal unitPrice = product.getPrice();
             orderDetail.setUnitPrice(unitPrice);
 
-            // Ajouter au montant total de la commande
+
             totalAmount = totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(productOrder.getQuantity())));
 
             orderDetails.add(orderDetail);
         }
 
-        // Sauvegarder la commande d'abord pour obtenir son ID
-        order.setTotalAmount(totalAmount); // Assigner le montant total à la commande
-        orderRepository.save(order); // Enregistrer la commande
+        order.setTotalAmount(totalAmount);
+        orderRepository.save(order);
 
-        // Maintenant, associer les détails de commande à la commande persistée
         for (OrderDetail orderDetail : orderDetails) {
-            orderDetail.setOrder(order); // Définir la commande pour chaque détail
+            orderDetail.setOrder(order);
         }
 
-        // Sauvegarder les détails de la commande
+
         orderDetailRepository.saveAll(orderDetails);
 
-        // Construire la réponse OrderResponseDTO
         List<OrderResponseDTO.ProductOrderDTO> productOrders = orderDetails.stream()
                 .map(orderDetail -> new OrderResponseDTO.ProductOrderDTO(
                         orderDetail.getProduct().getName(),
@@ -85,8 +80,8 @@ public class OrderService {
                 ))
                 .collect(Collectors.toList());
 
-        // Créer et retourner l'objet OrderResponseDTO
         return new OrderResponseDTO(
+                user.getId(),
                 user.getFirstName(),
                 user.getAddress(),
                 productOrders,
@@ -94,4 +89,36 @@ public class OrderService {
                 order.getOrderDate()
         );
     }
+
+    public List<OrderResponseDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAll(); // Fetch all orders from the repository
+        return orders.stream().map(this::convertToOrderResponseDTO).collect(Collectors.toList());
+    }
+
+    // Method to fetch an order by ID
+    public Optional<OrderResponseDTO> getOrderById(UUID id) {
+        return orderRepository.findById(id).map(this::convertToOrderResponseDTO);
+    }
+
+    // Helper method to convert Order to OrderResponseDTO
+    private OrderResponseDTO convertToOrderResponseDTO(Order order) {
+        List<OrderResponseDTO.ProductOrderDTO> productOrderDTOs = order.getOrderDetails().stream()
+                .map(orderDetail -> new OrderResponseDTO.ProductOrderDTO(
+                        orderDetail.getProduct().getName(),
+                        orderDetail.getOrderedQuantity(),
+                        orderDetail.getUnit(),
+                        orderDetail.getUnitPrice()
+                ))
+                .collect(Collectors.toList());
+
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getUser().getFirstName(),
+                order.getUser().getAddress(),
+                productOrderDTOs,
+                order.getTotalAmount(),
+                order.getOrderDate()
+        );
+    }
 }
+

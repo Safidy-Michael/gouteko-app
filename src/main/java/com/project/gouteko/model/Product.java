@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -33,6 +34,7 @@ public class Product {
 
     @Column(length = 255)
     private String productImage;
+
 
     @Column(length = 100)
     private String category;
