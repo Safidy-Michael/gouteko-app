@@ -6,6 +6,9 @@ import com.project.gouteko.model.User;
 import com.project.gouteko.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,5 +59,7 @@ public User updateUser(UUID id, UserDTO userDTO, MultipartFile imageFile) throws
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
+
+
 
 }
