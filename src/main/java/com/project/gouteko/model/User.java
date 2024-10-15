@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore; // Add this import
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,4 +39,8 @@ public class User {
 
     @Column(columnDefinition = "TEXT")
     private String image;
+
+    @JsonIgnore // Prevent serialization to avoid StackOverflowError
+    @OneToMany(mappedBy = "user")
+    private List<Role> roles;
 }
