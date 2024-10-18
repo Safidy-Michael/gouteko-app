@@ -40,7 +40,7 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String image;
 
-    @JsonIgnore // Prevent serialization to avoid StackOverflowError
-    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Role> roles;
 }

@@ -31,16 +31,22 @@ public class JwtUtil {
 
     public String createToken(User user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("firstName",user.getFirstName());
-        claims.put("lastName",user.getLastName());
+        claims.put("firstName", user.getFirstName());
+        claims.put("lastName", user.getLastName());
+        claims.put("roles", List.of("USER"));
         Date tokenCreateTime = new Date();
-        Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
-        return Jwts.builder()
+        Date tokenValidity = new Date(tokenCreateTime.getTime() + accessTokenValidity);
+
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
+
+        System.out.println("Token généré : " + token);
+        return token;
     }
+
 
     private Claims parseJwtClaims(String token) {
         return jwtParser.parseClaimsJws(token).getBody();
