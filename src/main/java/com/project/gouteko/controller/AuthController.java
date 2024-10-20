@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -36,18 +38,15 @@ public class AuthController {
 
             String email = authentication.getName();
 
-            // Log to verify user retrieval
             System.out.println("Email: " + email);
 
-            // Fetch authenticated user from database
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-            // Log to verify token generation
             System.out.println("User found: " + user.getEmail());
-
+            UUID id = user.getId();
             String token = jwtUtil.createToken(user);
-            LoginResponse loginRes = new LoginResponse(email, token);
+            LoginResponse loginRes = new LoginResponse(id,email, token);
 
             return ResponseEntity.ok(loginRes);
 
@@ -58,7 +57,7 @@ public class AuthController {
             System.out.println("User not found: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         } catch (Exception e) {
-            // Log the exception for more details
+
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
