@@ -14,7 +14,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/order")
 @AllArgsConstructor
 public class OrderController {
     private final OrderService orderService;

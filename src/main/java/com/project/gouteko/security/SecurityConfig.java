@@ -38,7 +38,8 @@ public class SecurityConfig  {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/user/**").authenticated()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/product/**").authenticated()
+                        .requestMatchers("/order/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
