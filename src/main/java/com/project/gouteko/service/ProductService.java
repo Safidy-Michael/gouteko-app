@@ -26,20 +26,14 @@ public class ProductService {
         }
         else throw new RuntimeException("Product not found with id: \" "+ productName );
     }
-    public Product updateProduct(UUID id,Product crupdateProduct){
-        Optional<Product> existingProduct = productRepository.findById(id);
 
-        if(existingProduct.isPresent()){
-            Product product = existingProduct.get();
-            product.setName(crupdateProduct.getName());
-            product.setPrice(crupdateProduct.getPrice());
-            product.setDescription(crupdateProduct.getDescription());
-            product.setAvailableQuantity(crupdateProduct.getAvailableQuantity());
-            product.setCategory(crupdateProduct.getCategory());
+    public Product updateProduct(UUID id,ProductDTO productDTO, MultipartFile imageFile)throws Exception {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product updateProduct = toDomain(productDTO, imageFile);
+        updateProduct.setId(existingProduct.getId());
+        return productRepository.save(updateProduct);
 
-            return productRepository.save(product);
-        }
-        else throw new RuntimeException("Product id not found" + id);
     }
     public void deleteProduct(UUID id){
         Optional<Product> productId = productRepository.findById(id);

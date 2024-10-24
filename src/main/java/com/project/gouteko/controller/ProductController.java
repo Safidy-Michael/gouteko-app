@@ -57,8 +57,7 @@ public class ProductController {
             @ModelAttribute ProductDTO productDTO,
             @RequestParam(value = "productImage", required = false) MultipartFile productImage) {
         try {
-            Product updatedProduct = productMapper.toDomain(productDTO, productImage);
-            updatedProduct = productService.updateProduct(id, updatedProduct);
+            Product updatedProduct = productService.updateProduct(id, productDTO, productImage);
             return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
