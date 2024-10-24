@@ -1,12 +1,19 @@
 package com.project.gouteko.controller;
 
+import com.project.gouteko.DTO.ProductDTO;
+import com.project.gouteko.DTO.UserDTO;
+import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
 import com.project.gouteko.model.User;
 import com.project.gouteko.service.ProductService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,39 +22,56 @@ import java.util.UUID;
 @RequestMapping("/product")
 @AllArgsConstructor
 public class ProductController {
+
+    @Autowired
     private final ProductService productService;
+    private final ProductMapper productMapper;
 
     @GetMapping("/")
-    public List<Product> getAll(){
+    public List<Product> getAll() {
         return productService.findAll();
     }
+
     @GetMapping("/{productName}")
-    public Product getProductName(@PathVariable String productName){
+    public Product getProductName(@PathVariable String productName) {
         return productService.getProductByName(productName);
     }
+
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product newProduct = productService.create(product);
-        return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+    public ResponseEntity<Product> createProduct(
+            @ModelAttribute ProductDTO productDTO,
+            @RequestParam("productImage") MultipartFile imageFile) {
+        try {
+            Product createProduct = productService.createProduct(productDTO, imageFile);
+            return new ResponseEntity<>(createProduct, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable UUID id, @RequestBody Product product){
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable UUID id,
+            @ModelAttribute ProductDTO productDTO,
+            @RequestParam(value = "productImage", required = false) MultipartFile productImage) {
         try {
-            productService.updateProduct(id,product);
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        }
-        catch (RuntimeException e){
+            Product updatedProduct = productMapper.toDomain(productDTO, productImage);
+            updatedProduct = productService.updateProduct(id, updatedProduct);
+            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletProduct(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         try {
             productService.deleteProduct(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

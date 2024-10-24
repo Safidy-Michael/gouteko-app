@@ -1,14 +1,17 @@
 package com.project.gouteko.service;
 
+import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.model.Product;
-import com.project.gouteko.model.User;
 import com.project.gouteko.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.project.gouteko.controller.mapper.ProductMapper.toDomain;
 
 @Service
 @AllArgsConstructor
@@ -47,7 +50,8 @@ public class ProductService {
             productRepository.deleteById(id);
         }
     }
-    public Product create(Product product){
+    public Product createProduct(ProductDTO productDTO, MultipartFile imageFile) throws Exception {
+        Product product = toDomain(productDTO, imageFile);
         return  productRepository.save(product);
     }
 

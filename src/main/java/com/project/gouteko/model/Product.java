@@ -32,11 +32,11 @@ public class Product {
     @Column(nullable = false)
     private Integer availableQuantity;
 
-    @Column(length = 255)
-    private String productImage;
-
-
     @Column(length = 100)
     private String category;
+
+    @Column(columnDefinition = "TEXT")
+    private String productImage;
+
 
 }
