@@ -1,6 +1,4 @@
 package com.project.gouteko.controller;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
@@ -40,23 +38,6 @@ public class UserController {
             }
         }
 
-
-
-
-    @PostMapping("/create")
-    public ResponseEntity<User> createUser(@ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
-        try {
-            User createdUser = userService.createUser(userDTO, imageFile);
-            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-
-
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable UUID id, @ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
         try {
@@ -77,6 +58,6 @@ public class UserController {
         catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
+    }       
 
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore; // Add this import
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,4 +44,19 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Role> roles;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "place_of_birth", length = 100)
+    private String placeOfBirth;
+
+    @Column(name = "cin", unique = true, length = 12)
+    private String cin;
+
+    @Column(name = "status", length = 50)
+    private String status;
+
+    @Column(name = "geolocation", columnDefinition = "TEXT")
+    private String geolocation;
 }

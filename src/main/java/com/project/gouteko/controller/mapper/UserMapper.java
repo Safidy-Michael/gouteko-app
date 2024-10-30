@@ -21,6 +21,11 @@ public class UserMapper {
         domainUser.setPassword(userDTO.getPassword());
         domainUser.setPhoneNumber(userDTO.getPhoneNumber());
         domainUser.setAddress(userDTO.getAddress());
+        domainUser.setDateOfBirth(userDTO.getDateOfBirth());
+        domainUser.setPlaceOfBirth(userDTO.getPlaceOfBirth());
+        domainUser.setCin(userDTO.getCin());
+        domainUser.setStatus(userDTO.getStatus());
+        domainUser.setGeolocation(userDTO.getGeolocation());
 
         if (imageFile != null && !imageFile.isEmpty()) {
             byte[] imageBytes = imageFile.getBytes();
@@ -46,6 +51,11 @@ public class UserMapper {
             userDTO.setPassword(user.getPassword());
             String base64Image = user.getImage();
             userDTO.setImageBase64(base64Image);
+            userDTO.setDateOfBirth(user.getDateOfBirth());
+            userDTO.setPlaceOfBirth(user.getPlaceOfBirth());
+            userDTO.setCin(user.getCin());
+            userDTO.setStatus(user.getStatus());
+            userDTO.setGeolocation(user.getGeolocation());
 
             return userDTO;
         }
