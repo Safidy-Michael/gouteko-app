@@ -74,4 +74,8 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/filter")
+    public List<Product> getProductsByCategory(@RequestParam String category){
+        return productService.findProductByCategory(category);
+    }
 }

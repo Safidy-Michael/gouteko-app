@@ -53,4 +53,8 @@ public class ProductService {
     public List<Product> findAll() {
         return productRepository.findAll();
     }
+
+    public  List<Product> findProductByCategory(String category){
+        return  productRepository.findByCategory(category);
+    }
 }
