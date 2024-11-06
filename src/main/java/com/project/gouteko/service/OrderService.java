@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,5 +121,11 @@ public class OrderService {
                 order.getOrderDate()
         );
     }
+    public List<OrderResponseDTO> getOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Order> orders = orderRepository.findAllByOrderDateBetween(startDate, endDate);
+        return orders.stream().map(this::convertToOrderResponseDTO).collect(Collectors.toList());
+    }
+
+
 }
 

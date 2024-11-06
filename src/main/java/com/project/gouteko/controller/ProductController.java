@@ -1,17 +1,13 @@
 package com.project.gouteko.controller;
 
 import com.project.gouteko.DTO.ProductDTO;
-import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
-import com.project.gouteko.model.User;
 import com.project.gouteko.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
