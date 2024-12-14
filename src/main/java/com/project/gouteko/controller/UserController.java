@@ -3,8 +3,12 @@ import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
 import com.project.gouteko.service.UserService;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +26,16 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping("/")
-    public List<UserDTO> findAll() {
-        List<User> users = userService.getAll();
-        return users.stream()
-                .map(userMapper::toView)
-                .toList();
+    public Page<UserDTO> findAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<User> users = userService.getAll(pageable);
+        return users.map(userMapper::toView);
     }
-        @GetMapping("/{id}")
+
+    @GetMapping("/{id}")
         public ResponseEntity<UserDTO> findUserById(@PathVariable UUID id) {
             try {
                 User user = userService.getUserById(id);
