@@ -4,14 +4,16 @@ import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
 import com.project.gouteko.service.ProductService;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,8 +26,12 @@ public class ProductController {
     private final ProductMapper productMapper;
 
     @GetMapping("/")
-    public List<Product> getAll() {
-        return productService.findAll();
+    public Page<Product> getAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<Product> products = productService.findAll(pageable);
+        return products;
     }
 
     @GetMapping("/{productName}")
@@ -71,7 +77,13 @@ public class ProductController {
         }
     }
     @GetMapping("/filter")
-    public List<Product> getProductsByCategory(@RequestParam String category){
-        return productService.findProductByCategory(category);
+    public Page<Product> getProductsByCategory(
+            @RequestParam String category,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ){
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<Product> productPage = productService.findProductByCategory(category, pageable);
+        return productPage;
     }
 }

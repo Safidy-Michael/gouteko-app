@@ -4,6 +4,8 @@ import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.model.Product;
 import com.project.gouteko.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,11 +52,11 @@ public class ProductService {
     }
 
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
-    public  List<Product> findProductByCategory(String category){
-        return  productRepository.findByCategory(category);
+    public  Page<Product> findProductByCategory(String category, Pageable pageable){
+        return  productRepository.findByCategory(category, pageable);
     }
 }
