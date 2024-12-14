@@ -12,6 +12,8 @@ import com.project.gouteko.repository.ProductRepository;
 import com.project.gouteko.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -91,9 +93,9 @@ public class OrderService {
         );
     }
 
-    public List<OrderResponseDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findAll(); // Fetch all orders from the repository
-        return orders.stream().map(this::convertToOrderResponseDTO).collect(Collectors.toList());
+    public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(this::convertToOrderResponseDTO);
     }
 
     // Method to fetch an order by ID

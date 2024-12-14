@@ -4,7 +4,10 @@ import com.project.gouteko.DTO.OrderRequestDTO;
 import com.project.gouteko.DTO.OrderResponseDTO;
 import com.project.gouteko.model.Order;
 import com.project.gouteko.service.OrderService;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +30,13 @@ public class OrderController {
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
-        List<OrderResponseDTO> orders = orderService.getAllOrders();
+    public ResponseEntity<Page<OrderResponseDTO>> getAllOrders(
+            @RequestParam (required = false) Integer page,
+            @RequestParam (required = false) Integer size
+    ) {
+        Pageable pageable = PageableUtils.createPageable(page,size);
+
+        Page<OrderResponseDTO> orders = orderService.getAllOrders(pageable);
         return ResponseEntity.ok(orders);
     }
 
