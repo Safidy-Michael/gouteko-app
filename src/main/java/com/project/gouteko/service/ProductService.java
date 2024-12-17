@@ -47,6 +47,10 @@ public class ProductService {
         }
     }
     public Product createProduct(ProductDTO productDTO, MultipartFile imageFile) throws Exception {
+        boolean exists = productRepository.existsByName(productDTO.getName());
+        if (exists) {
+            throw new RuntimeException("Un produit avec le nom '" + productDTO.getName() + "' existe déjà.");
+        }
         Product product = toDomain(productDTO, imageFile);
         return  productRepository.save(product);
     }
