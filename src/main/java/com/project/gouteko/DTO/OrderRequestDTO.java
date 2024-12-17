@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class OrderRequestDTO {
-    private String firstName;
+    private String email;
     private List<ProductOrderDTO> productOrders;
 
     @Data

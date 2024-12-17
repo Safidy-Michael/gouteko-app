@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +34,10 @@ public class OrderService {
     private final OrderDetailRepository orderDetailRepository;
 
     public OrderResponseDTO placeOrder(OrderRequestDTO orderRequest) {
-        User user = userRepository.findByFirstName(orderRequest.getFirstName())
-                .orElseThrow(() -> new RuntimeException("User not found with first name: " + orderRequest.getFirstName()));
+        User user = userRepository.findByEmail(orderRequest.getEmail())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + orderRequest.getEmail()));
 
         Order order = new Order();
         order.setUser(user);
@@ -50,6 +50,15 @@ public class OrderService {
             Product product = productRepository.findByName(productOrder.getProductName())
                     .orElseThrow(() -> new RuntimeException("Product not found with name: " + productOrder.getProductName()));
 
+            // Vérification de la disponibilité du stock
+            if (product.getAvailableQuantity() < productOrder.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
+
+            // Mise à jour du stock disponible
+            product.setAvailableQuantity(product.getAvailableQuantity() - productOrder.getQuantity());
+            productRepository.save(product);
+
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setProduct(product);
             orderDetail.setOrderedQuantity(productOrder.getQuantity());
@@ -57,7 +66,6 @@ public class OrderService {
 
             BigDecimal unitPrice = product.getPrice();
             orderDetail.setUnitPrice(unitPrice);
-
 
             totalAmount = totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(productOrder.getQuantity())));
 
@@ -70,7 +78,6 @@ public class OrderService {
         for (OrderDetail orderDetail : orderDetails) {
             orderDetail.setOrder(order);
         }
-
 
         orderDetailRepository.saveAll(orderDetails);
 
@@ -92,6 +99,7 @@ public class OrderService {
                 order.getOrderDate()
         );
     }
+
 
     public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
         Page<Order> orders = orderRepository.findAll(pageable);
