@@ -1,8 +1,12 @@
 package com.project.gouteko.service;
 
 import com.project.gouteko.DTO.ProductDTO;
+import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
 import com.project.gouteko.repository.ProductRepository;
+import com.project.gouteko.utils.PaginationRequest;
+import com.project.gouteko.utils.PaginationUtils;
+import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +18,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.project.gouteko.controller.mapper.ProductMapper.toDomain;
+import static com.project.gouteko.controller.mapper.ProductMapper.toView;
 
 @Service
 @AllArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     public Product getProductByName(String productName){
         Optional<Product> productN =  productRepository.findByName(productName);
@@ -56,9 +62,17 @@ public class ProductService {
     }
 
 
-    public Page<Product> findAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public PagingResult<ProductDTO> findAll(PaginationRequest request, MultipartFile imageFile) {
+        final Pageable pageable = PaginationUtils.getPageable(request);
+
+        final Page<Product> products = productRepository.findAll(pageable);
+
+        final Page<ProductDTO> productDTOS = products.map(ProductMapper::toView);
+
+        return new PagingResult<>(productDTOS);
     }
+
+
 
     public  Page<Product> findProductByCategory(String category, Pageable pageable){
         return  productRepository.findByCategory(category, pageable);

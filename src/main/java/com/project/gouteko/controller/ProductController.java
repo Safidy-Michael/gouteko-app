@@ -1,14 +1,18 @@
 package com.project.gouteko.controller;
 
+import com.project.gouteko.DTO.OrderResponseDTO;
 import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
 import com.project.gouteko.service.ProductService;
 import com.project.gouteko.utils.PageableUtils;
+import com.project.gouteko.utils.PaginationRequest;
+import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +30,16 @@ public class ProductController {
     private final ProductMapper productMapper;
 
     @GetMapping("/")
-    public Page<Product> getAll(
+    public PagingResult<ProductDTO> getAll(
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        Pageable pageable = PageableUtils.createPageable(page, size);
-        Page<Product> products = productService.findAll(pageable);
-        return products;
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) Sort.Direction direction
+    ) {
+        final PaginationRequest request = new PaginationRequest(page, size, sortField, direction);
+
+        final PagingResult<ProductDTO> products = productService.findAll(request,null);
+        return ResponseEntity.ok(products).getBody();
     }
 
     @GetMapping("/{productName}")
