@@ -10,6 +10,9 @@ import com.project.gouteko.repository.OrderDetailRepository;
 import com.project.gouteko.repository.OrderRepository;
 import com.project.gouteko.repository.ProductRepository;
 import com.project.gouteko.repository.UserRepository;
+import com.project.gouteko.utils.PaginationRequest;
+import com.project.gouteko.utils.PaginationUtils;
+import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -101,10 +104,15 @@ public class OrderService {
     }
 
 
-    public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
-        Page<Order> orders = orderRepository.findAll(pageable);
-        return orders.map(this::convertToOrderResponseDTO);
-    }
+        public PagingResult<OrderResponseDTO> getAllOrders(PaginationRequest request) {
+            final Pageable pageable = PaginationUtils.getPageable(request);
+
+            final Page<Order> orders = orderRepository.findAll(pageable);
+
+            final Page<OrderResponseDTO> ordersDTO = orders.map(this::convertToOrderResponseDTO);
+
+            return new PagingResult<>(ordersDTO);
+        }
 
     // Method to fetch an order by ID
     public Optional<OrderResponseDTO> getOrderById(UUID id) {
