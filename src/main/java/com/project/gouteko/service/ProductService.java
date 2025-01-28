@@ -1,14 +1,19 @@
 package com.project.gouteko.service;
 
+import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.model.Product;
-import com.project.gouteko.model.User;
 import com.project.gouteko.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.project.gouteko.controller.mapper.ProductMapper.toDomain;
 
 @Service
 @AllArgsConstructor
@@ -23,20 +28,14 @@ public class ProductService {
         }
         else throw new RuntimeException("Product not found with id: \" "+ productName );
     }
-    public Product updateProduct(UUID id,Product crupdateProduct){
-        Optional<Product> existingProduct = productRepository.findById(id);
 
-        if(existingProduct.isPresent()){
-            Product product = existingProduct.get();
-            product.setName(crupdateProduct.getName());
-            product.setPrice(crupdateProduct.getPrice());
-            product.setDescription(crupdateProduct.getDescription());
-            product.setAvailableQuantity(crupdateProduct.getAvailableQuantity());
-            product.setCategory(crupdateProduct.getCategory());
+    public Product updateProduct(UUID id,ProductDTO productDTO, MultipartFile imageFile)throws Exception {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product updateProduct = toDomain(productDTO, imageFile);
+        updateProduct.setId(existingProduct.getId());
+        return productRepository.save(updateProduct);
 
-            return productRepository.save(product);
-        }
-        else throw new RuntimeException("Product id not found" + id);
     }
     public void deleteProduct(UUID id){
         Optional<Product> productId = productRepository.findById(id);
@@ -47,12 +46,21 @@ public class ProductService {
             productRepository.deleteById(id);
         }
     }
-    public Product create(Product product){
+    public Product createProduct(ProductDTO productDTO, MultipartFile imageFile) throws Exception {
+        boolean exists = productRepository.existsByName(productDTO.getName());
+        if (exists) {
+            throw new RuntimeException("Un produit avec le nom '" + productDTO.getName() + "' existe déjà.");
+        }
+        Product product = toDomain(productDTO, imageFile);
         return  productRepository.save(product);
     }
 
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    public  Page<Product> findProductByCategory(String category, Pageable pageable){
+        return  productRepository.findByCategory(category, pageable);
     }
 }

@@ -4,8 +4,14 @@ import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
 import com.project.gouteko.repository.UserRepository;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +29,11 @@ public class UserService {
     @Autowired
     private final UserRepository userRepository;
 
-    public List<User> getAll(){
-        return userRepository.findAll();
+    public Page<User> getAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
+
+
     public User createUser(UserDTO userDTO, MultipartFile imageFile) throws Exception {
         User user = toDomain(userDTO, imageFile);
 
@@ -56,5 +64,6 @@ public User updateUser(UUID id, UserDTO userDTO, MultipartFile imageFile) throws
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
+
 
 }

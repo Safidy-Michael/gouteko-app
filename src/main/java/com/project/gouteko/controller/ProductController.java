@@ -1,54 +1,89 @@
 package com.project.gouteko.controller;
 
+import com.project.gouteko.DTO.ProductDTO;
+import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
-import com.project.gouteko.model.User;
 import com.project.gouteko.service.ProductService;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/product")
 @AllArgsConstructor
 public class ProductController {
+
+    @Autowired
     private final ProductService productService;
+    private final ProductMapper productMapper;
 
     @GetMapping("/")
-    public List<Product> getAll(){
-        return productService.findAll();
-    }
-    @GetMapping("/{productName}")
-    public Product getProductName(@PathVariable String productName){
-        return productService.getProductByName(productName);
-    }
-    @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product newProduct = productService.create(product);
-        return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+    public Page<Product> getAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<Product> products = productService.findAll(pageable);
+        return products;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable UUID id, @RequestBody Product product){
+    @GetMapping("/{productName}")
+    public Product getProductName(@PathVariable String productName) {
+        return productService.getProductByName(productName);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Product> createProduct(
+            @ModelAttribute ProductDTO productDTO,
+            @RequestParam("productImage") MultipartFile imageFile) {
         try {
-            productService.updateProduct(id,product);
-            return new ResponseEntity<>(product, HttpStatus.OK);
+            Product createProduct = productService.createProduct(productDTO, imageFile);
+            return new ResponseEntity<>(createProduct, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        catch (RuntimeException e){
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable UUID id,
+            @ModelAttribute ProductDTO productDTO,
+            @RequestParam(value = "productImage", required = false) MultipartFile productImage) {
+        try {
+            Product updatedProduct = productService.updateProduct(id, productDTO, productImage);
+            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletProduct(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         try {
             productService.deleteProduct(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+    @GetMapping("/filter")
+    public Page<Product> getProductsByCategory(
+            @RequestParam String category,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ){
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<Product> productPage = productService.findProductByCategory(category, pageable);
+        return productPage;
     }
 }

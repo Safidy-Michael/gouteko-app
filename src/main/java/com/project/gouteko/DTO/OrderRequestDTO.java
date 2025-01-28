@@ -8,14 +8,14 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class OrderRequestDTO {
-    private String firstName; // Prénom de l'utilisateur
-    private List<ProductOrderDTO> productOrders; // Liste des produits commandés
+    private String email;
+    private List<ProductOrderDTO> productOrders;
 
     @Data
     @AllArgsConstructor
     public static class ProductOrderDTO {
-        private String productName; // Nom du produit
-        private int quantity; // Quantité commandée
-        private String unit; // Unité du produit (par exemple, "kg", "g", "pcs", etc.)
+        private String productName;
+        private int quantity;
+        private String unit;
     }
 }

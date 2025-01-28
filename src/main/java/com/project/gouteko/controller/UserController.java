@@ -1,19 +1,20 @@
 package com.project.gouteko.controller;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gouteko.DTO.UserDTO;
 import com.project.gouteko.controller.mapper.UserMapper;
 import com.project.gouteko.model.User;
 import com.project.gouteko.service.UserService;
+import com.project.gouteko.utils.PageableUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
-import java.util.List;
+
 import java.util.UUID;
 
 @RestController
@@ -25,13 +26,16 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping("/")
-    public List<UserDTO> findAll() {
-        List<User> users = userService.getAll();
-        return users.stream()
-                .map(userMapper::toView)
-                .toList();
+    public Page<UserDTO> findAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        Pageable pageable = PageableUtils.createPageable(page, size);
+        Page<User> users = userService.getAll(pageable);
+        return users.map(userMapper::toView);
     }
-        @GetMapping("/{id}")
+
+    @GetMapping("/{id}")
         public ResponseEntity<UserDTO> findUserById(@PathVariable UUID id) {
             try {
                 User user = userService.getUserById(id);
@@ -40,23 +44,6 @@ public class UserController {
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
         }
-
-
-
-
-    @PostMapping("/create")
-    public ResponseEntity<User> createUser(@ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
-        try {
-            User createdUser = userService.createUser(userDTO, imageFile);
-            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable UUID id, @ModelAttribute UserDTO userDTO, @RequestParam("image") MultipartFile imageFile) {
@@ -78,6 +65,6 @@ public class UserController {
         catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
+    }       
 
 }

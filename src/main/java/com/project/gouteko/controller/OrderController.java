@@ -2,15 +2,28 @@ package com.project.gouteko.controller;
 
 import com.project.gouteko.DTO.OrderRequestDTO;
 import com.project.gouteko.DTO.OrderResponseDTO;
+import com.project.gouteko.model.Order;
 import com.project.gouteko.service.OrderService;
+import com.project.gouteko.utils.PageableUtils;
+import com.project.gouteko.utils.PaginationRequest;
+import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/order")
 @AllArgsConstructor
 public class OrderController {
     private final OrderService orderService;
@@ -19,4 +32,38 @@ public class OrderController {
         OrderResponseDTO orderResponse = orderService.placeOrder(orderRequest);
         return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
+    @GetMapping
+    public ResponseEntity<PagingResult<OrderResponseDTO>> getAllOrders(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) Sort.Direction direction
+    ) {
+        final PaginationRequest request = new PaginationRequest(page, size, sortField, direction);
+
+        final PagingResult<OrderResponseDTO> orders = orderService.getAllOrders(request);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable UUID id) {
+        Optional<OrderResponseDTO> order = orderService.getOrderById(id);
+        return order.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/byDate")
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            LocalDateTime start = LocalDateTime.parse(startDate);
+            LocalDateTime end = LocalDateTime.parse(endDate);
+            List<OrderResponseDTO> orders = orderService.getOrdersByDateRange(start, end);
+            return ResponseEntity.ok(orders);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
 }
