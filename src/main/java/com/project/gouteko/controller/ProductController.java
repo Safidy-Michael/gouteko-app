@@ -1,6 +1,6 @@
 package com.project.gouteko.controller;
 
-import com.project.gouteko.DTO.OrderResponseDTO;
+
 import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.model.Product;
@@ -38,7 +38,7 @@ public class ProductController {
     ) {
         final PaginationRequest request = new PaginationRequest(page, size, sortField, direction);
 
-        final PagingResult<ProductDTO> products = productService.findAll(request,null);
+        final PagingResult<ProductDTO> products = productService.findAll(request);
         return ResponseEntity.ok(products).getBody();
     }
 

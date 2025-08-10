@@ -62,7 +62,7 @@ public class ProductService {
     }
 
 
-    public PagingResult<ProductDTO> findAll(PaginationRequest request, MultipartFile imageFile) {
+    public PagingResult<ProductDTO> findAll(PaginationRequest request) {
         final Pageable pageable = PaginationUtils.getPageable(request);
 
         final Page<Product> products = productRepository.findAll(pageable);

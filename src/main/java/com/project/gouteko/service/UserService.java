@@ -1,10 +1,16 @@
 package com.project.gouteko.service;
 
+import com.project.gouteko.DTO.ProductDTO;
 import com.project.gouteko.DTO.UserDTO;
+import com.project.gouteko.controller.mapper.ProductMapper;
 import com.project.gouteko.controller.mapper.UserMapper;
+import com.project.gouteko.model.Product;
 import com.project.gouteko.model.User;
 import com.project.gouteko.repository.UserRepository;
 import com.project.gouteko.utils.PageableUtils;
+import com.project.gouteko.utils.PaginationRequest;
+import com.project.gouteko.utils.PaginationUtils;
+import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,8 +35,15 @@ public class UserService {
     @Autowired
     private final UserRepository userRepository;
 
-    public Page<User> getAll(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public PagingResult<UserDTO> getAll(PaginationRequest request) {
+
+        final Pageable pageable = PaginationUtils.getPageable(request);
+
+        final Page<User> users = userRepository.findAll(pageable);
+
+        final Page<UserDTO> userDTOS = users.map(UserMapper::toView);
+
+        return new PagingResult<>(userDTOS);
     }
 
 

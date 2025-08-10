@@ -40,7 +40,7 @@ public class UserMapper {
 
 
 
-    public UserDTO toView(User user) {
+    public static UserDTO toView(User user) {
             UserDTO userDTO = new UserDTO();
             userDTO.setId(user.getId());
             userDTO.setFirstName(user.getFirstName());

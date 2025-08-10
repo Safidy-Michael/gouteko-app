@@ -16,7 +16,9 @@ import com.project.gouteko.utils.PagingResult;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -105,7 +107,14 @@ public class OrderService {
 
 
         public PagingResult<OrderResponseDTO> getAllOrders(PaginationRequest request) {
-            final Pageable pageable = PaginationUtils.getPageable(request);
+            Pageable pageable = PaginationUtils.getPageable(request);
+            if(request.getSortField() != null) {
+                pageable = PageRequest.of(
+                        request.getPage(),
+                        request.getSize(),
+                        Sort.by(Sort.Direction.DESC, "orderDate")
+                );
+            }
 
             final Page<Order> orders = orderRepository.findAll(pageable);
 
